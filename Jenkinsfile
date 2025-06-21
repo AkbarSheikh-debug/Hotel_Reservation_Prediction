@@ -1,11 +1,10 @@
-pipeline {
-    agent any 
+pipeline{
+    agent any
 
     environment {
         VENV_DIR = 'venv'
-        PIP_NO_CACHE_DIR = 'off'
         GCP_PROJECT = "modular-glider-462609-u1"
-        GCLOUD_PATH = "/var/jenkins/google-cloud-sdk/bin"
+        GCLOUD_PATH = "/var/jenkins_home/google-cloud-sdk/bin"
     }
 
     stages{
@@ -34,26 +33,54 @@ pipeline {
 
         stage('Building and Pushing Docker Image to GCR'){
             steps{
-               withCredentials([file(credentialsId: 'gcp-key' , variable : 'GOOGLE_APPLICATION_CREDENTIALS')]){
-                script{
-                  echo 'Building and Pushing Docker Image to GCR.............'
-                  sh '''
-                  export PATH=$PATH:$(GCLOUD_PATH)
+                withCredentials([file(credentialsId: 'gcp-key' , variable : 'GOOGLE_APPLICATION_CREDENTIALS')]){
+                    script{
+                        echo 'Building and Pushing Docker Image to GCR.............'
+                        sh '''
+                        export PATH=$PATH:${GCLOUD_PATH}
 
-                  gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
 
-                  gcloud config set project ${GCP_PROJECT}
+                        gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
 
-                  gcloud auth configure-docker --quiet
+                        gcloud config set project ${GCP_PROJECT}
 
-                  docker build -t gcr.io/${GCP_PROJECT}/ml-project:latest .
+                        gcloud auth configure-docker --quiet
 
-                  docker push gcr.io/${GCP_PROJECT}/ml-project:latest
-                  '''
-        
+                        docker build -t gcr.io/${GCP_PROJECT}/ml-project:latest .
+
+                        docker push gcr.io/${GCP_PROJECT}/ml-project:latest 
+
+                        '''
+                    }
                 }
-               }
             }
         }
+
+
+        stage('Deploy to Google Cloud Run'){
+            steps{
+                withCredentials([file(credentialsId: 'gcp-key' , variable : 'GOOGLE_APPLICATION_CREDENTIALS')]){
+                    script{
+                        echo 'Deploy to Google Cloud Run.............'
+                        sh '''
+                        export PATH=$PATH:${GCLOUD_PATH}
+
+
+                        gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
+
+                        gcloud config set project ${GCP_PROJECT}
+
+                        gcloud run deploy ml-project \
+                            --image=gcr.io/${GCP_PROJECT}/ml-project:latest \
+                            --platform=managed \
+                            --region=us-central1 \
+                            --allow-unauthenticated
+                            
+                        '''
+                    }
+                }
+            }
+        }
+        
     }
 }
