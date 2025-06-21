@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY . .
 
 # Install the package in editable mode
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -e .
 
 # Train the model before running the application
 RUN python pipeline/training_pipeline.py
@@ -28,4 +28,3 @@ EXPOSE 5000
 
 # Command to run the app
 CMD ["python", "application.py"]
-
