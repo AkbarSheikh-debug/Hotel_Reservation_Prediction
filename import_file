@@ -1,8 +1,0 @@
-checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'Github-Token', url: 'https://github.com/AkbarSheikh-debug/Hotel_Reservation_Prediction.git']])
-
-pipeline{
-  agent any 
-
-  environment {
-    VENV_DIR = 'venv'
-  }
