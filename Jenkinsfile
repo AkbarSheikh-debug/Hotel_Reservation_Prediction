@@ -5,6 +5,7 @@ pipeline {
         VENV_DIR = 'venv'
         GCP_PROJECT = "modular-glider-462609-u1"
         GCLOUD_PATH = "/var/jenkins_home/google-cloud-sdk/bin"
+        PIP_RETRIES = "5"  // Add retry configuration
     }
 
     stages {
@@ -31,8 +32,8 @@ pipeline {
                     sh '''
                     python -m venv ${VENV_DIR}
                     . ${VENV_DIR}/bin/activate
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
+                    pip install --upgrade pip setuptools wheel
+                    pip install --retries ${PIP_RETRIES} -r requirements.txt
                     '''
                 }
             }
@@ -48,7 +49,7 @@ pipeline {
                         gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
                         gcloud config set project ${GCP_PROJECT}
                         gcloud auth configure-docker --quiet
-                        docker build -t gcr.io/${GCP_PROJECT}/ml-project:latest .
+                        docker build --no-cache -t gcr.io/${GCP_PROJECT}/ml-project:latest .
                         docker push gcr.io/${GCP_PROJECT}/ml-project:latest
                         '''
                     }
@@ -69,7 +70,9 @@ pipeline {
                             --image=gcr.io/${GCP_PROJECT}/ml-project:latest \
                             --platform=managed \
                             --region=us-central1 \
-                            --allow-unauthenticated
+                            --allow-unauthenticated \
+                            --memory=1Gi \
+                            --timeout=300
                         '''
                     }
                 }
