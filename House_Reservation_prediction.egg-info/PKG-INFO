@@ -1,4 +1,4 @@
-Metadata-Version: 2.4
+Metadata-Version: 2.1
 Name: House_Reservation_prediction
 Version: 0.1
 Author: Akbar_Sheikh
@@ -14,5 +14,3 @@ Requires-Dist: imbalanced-learn
 Requires-Dist: lightgbm
 Requires-Dist: mlflow
 Requires-Dist: flask
-Dynamic: author
-Dynamic: requires-dist
