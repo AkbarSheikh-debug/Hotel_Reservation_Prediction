@@ -5,6 +5,7 @@ pipeline {
         VENV_DIR = 'venv'
         GCP_PROJECT = "modular-glider-462609-u1"
         GCLOUD_PATH = "/var/jenkins_home/google-cloud-sdk/bin"
+        PIP_NO_CACHE_DIR = 'off'
     }
 
     stages {
