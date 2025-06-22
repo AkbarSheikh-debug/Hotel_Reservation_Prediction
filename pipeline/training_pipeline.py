@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from src.data_ingestion import DataIngestion
 from src.data_processing import DataProcessor
 from src.model_training import ModelTraining
