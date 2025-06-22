@@ -20,8 +20,11 @@ COPY . .
 # Install the package in editable mode
 RUN pip install --no-cache-dir -e .
 
+# Set PYTHONPATH to include the app directory
+ENV PYTHONPATH="${PYTHONPATH}:/app"
+
 # Train the model before running the application
-RUN python pipeline/training_pipeline.py
+RUN python -m pipeline.training_pipeline
 
 # Expose the port that Flask will run on
 EXPOSE 5000
